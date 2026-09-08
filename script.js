@@ -321,9 +321,33 @@ const fileList = document.getElementById("fileList");
 fileButton.addEventListener("click", () => fileInput.click());
 fileInput.addEventListener("change", () => {
   const files = [...fileInput.files];
+  const allowed = ["image/jpeg", "image/png", "application/pdf"];
+  const maxFiles = 3;
+  const maxBytes = 5 * 1024 * 1024;
+
+  const problems = [];
+  if (files.length > maxFiles) problems.push(`파일은 최대 ${maxFiles}개까지 선택할 수 있습니다.`);
+
+  files.forEach(file => {
+    if (!allowed.includes(file.type)) {
+      problems.push(`${file.name}: JPG, PNG, PDF 파일만 선택할 수 있습니다.`);
+    }
+    if (file.size > maxBytes) {
+      problems.push(`${file.name}: 5MB를 초과했습니다.`);
+    }
+  });
+
+  if (problems.length) {
+    fileInput.value = "";
+    fileList.textContent = problems.join(" ");
+    fileList.classList.add("file-error");
+    return;
+  }
+
+  fileList.classList.remove("file-error");
   fileList.textContent = files.length
-    ? files.map(f => f.name).join(" · ")
-    : "";
+    ? files.map(f => `${f.name} (${(f.size / 1024 / 1024).toFixed(1)}MB)`).join(" · ")
+    : "선택된 파일이 없습니다.";
 });
 
 renderStep();

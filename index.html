@@ -179,7 +179,7 @@
                 <label class="field">
                   <span>연락처 *</span>
                   <div class="phone-input-group">
-                    <input id="phoneFirst" class="phone-first" type="text" inputmode="numeric" maxlength="4" placeholder="010" aria-label="연락처 첫 번째 번호" required />
+                    <input id="phoneFirst" class="phone-first" type="text" inputmode="numeric" maxlength="4" value="010" placeholder="010" aria-label="연락처 첫 번째 번호" required />
                     <span class="phone-dash">-</span>
                     <input id="phoneMiddle" type="text" inputmode="numeric" maxlength="4" placeholder="1234" aria-label="연락처 가운데 번호" required />
                     <span class="phone-dash">-</span>
@@ -262,15 +262,22 @@
             <section class="step" data-step="6">
               <p class="sheet-label">STEP 07 · 선택</p>
               <h3>도면 · 그림 설명</h3>
-              <p class="step-desc">간단한 손그림이나 사진도 좋습니다. 실제 업로드는 백엔드 연결 시 활성화합니다.</p>
+              <p class="step-desc">
+                발명의 구조를 이해하는 데 도움이 되는 도면, 손그림, 화면 캡처, 제품·시제품 사진 또는 PDF 자료를 첨부할 수 있습니다.
+              </p>
               <label class="field">
                 <span>도면 설명</span>
                 <textarea name="drawingDescription" rows="5" placeholder="예: 왼쪽은 주문 수집 화면, 오른쪽은 혼잡도 안내 화면..."></textarea>
               </label>
               <div class="upload-placeholder">
                 <span>＋</span>
-                <strong>이미지·PDF 첨부 영역</strong>
-                <small>현재 데모에서는 파일명만 표시됩니다.</small>
+                <strong>도면 · 이미지 · PDF 첨부</strong>
+                <small class="upload-main-help">첨부 가능: JPG · JPEG · PNG 이미지, PDF 문서 / 최대 3개 / 파일당 5MB 이하 권장</small>
+                <div class="upload-help-box">
+                  <p><b>첨부하면 좋은 자료</b> — 특허 도면, 손으로 그린 스케치, 제품·시제품 사진, 앱·웹 화면 캡처, 작동 설명 PDF 등</p>
+                  <p><b>첨부하지 않는 파일</b> — 한글(HWP), Word, Excel, PowerPoint, CAD·3D 원본, ZIP 등 압축파일 및 파일당 5MB를 초과하는 자료</p>
+                  <p class="upload-email-notice">용량을 초과하거나 위 형식 외의 자료는 <b>회사 상담 이메일 주소로 별도 전송</b>해 주세요. 이메일 제목에는 신청자명과 발명의 명칭을 함께 적어주세요.</p>
+                </div>
                 <input id="fileInput" name="attachments" type="file" multiple accept=".png,.jpg,.jpeg,.pdf" />
                 <button id="fileButton" class="btn soft" type="button">파일 선택</button>
                 <div id="fileList"></div>
