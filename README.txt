@@ -1,44 +1,28 @@
-특허상담 온라인 접수 포털 - 전체 교체본 V2
+특허상담 관리자 화면 V1 적용 순서
 
-1) Apps Script
-- Code.gs 기존 내용 전체 삭제
-- Code.gs.txt 내용 전체 붙여넣기
-- 저장
-- "배포 관리" > 기존 웹앱 배포 수정 > 새 버전으로 배포
-  또는 새 배포
-- 웹앱 URL은 현재 아래 주소 기준:
-  https://script.google.com/macros/s/AKfycbwty1ir537jUHhGDE088UtX3tkqhqXfShEa_KXEa2JU6lpX83dCI23UIUMm5GNrprCq/exec
+1. GitHub 폴더 patent-intake-portal 에 추가
+   - admin.html
+   - admin.css
+   - admin.js
 
-2) GitHub
-- 기존 script.js 전체 삭제
-- 이 폴더의 script.js 전체 붙여넣기
-- 저장
+2. Apps Script
+   - Code.gs를 Code.gs.txt 내용으로 전체 교체
+   - 저장
+   - 프로젝트 설정(톱니바퀴) > 스크립트 속성
+   - 속성 이름: ADMIN_KEY
+   - 값: 원하는 관리자 비밀번호
+   - 저장
+   - 배포 관리 > 기존 웹 앱 수정 > 새 버전 배포
 
-3) Git 명령어
-git add .
-git commit -m "특허 접수 전체 연결 수정"
-git push
+3. GitHub
+   git add .
+   git commit -m "특허상담 관리자 화면 추가"
+   git push
 
-4) 테스트
-- GitHub Pages 접속
-- 특허 사전검토 입력
-- 마지막 접수하기
-- 접수번호 확인
-- Google Sheet 접수원장 새 행 확인
-- 상단 진행상황 조회 클릭
-- 접수번호 + 신청 당시 연락처로 조회
+4. 관리자 주소
+   https://thebigkorea.github.io/patent-intake-portal/admin.html
 
-현재 포함 기능
-- 실제 Google Sheet 접수 저장
-- 접수번호 IP-YYYYMMDD-0001 자동 발급
-- 진행이력 기록
-- 고객 이메일 발송
-- 접수번호+연락처 진행상황 조회
-- 임시저장
-- 첨부파일 이름 기록
-- 진행상황 조회 팝업 UI
-
-아직 미포함
-- 첨부파일 실제 Google Drive 업로드
-- 변리사 관리자 전용 웹 화면
-- 개인정보처리방침/약관 전용 페이지
+보안 메모
+- 관리자 비밀번호는 GitHub 코드에 저장하지 않습니다.
+- 브라우저 sessionStorage에 현재 세션 동안만 보관합니다.
+- 실제 장기 운영 시에는 Google 로그인/OAuth 또는 별도 인증 서버 방식으로 강화하는 것을 권장합니다.

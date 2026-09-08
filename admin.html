@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>특허상담 관리자</title>
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-mark">IP</span>
+        <div>
+          <strong>특허상담 관리자</strong>
+          <small>Patent Intake Administration</small>
+        </div>
+      </div>
+      <div class="top-actions">
+        <a href="index.html" class="link-btn">고객 화면</a>
+        <button id="logoutBtn" class="ghost-btn hidden" type="button">로그아웃</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="loginView" class="login-view">
+      <div class="login-card">
+        <p class="eyebrow">ADMIN ACCESS</p>
+        <h1>관리자 접수관리</h1>
+        <p class="desc">
+          관리자 비밀번호를 입력하면 접수 현황과 신청 상세내용을 확인할 수 있습니다.
+        </p>
+
+        <label class="field">
+          <span>관리자 비밀번호</span>
+          <input id="adminKeyInput" type="password" autocomplete="current-password" placeholder="관리자 비밀번호 입력" />
+        </label>
+
+        <button id="loginBtn" class="primary-btn full" type="button">관리자 로그인</button>
+        <p id="loginMessage" class="message"></p>
+      </div>
+    </section>
+
+    <section id="dashboardView" class="dashboard hidden">
+      <div class="page-head">
+        <div>
+          <p class="eyebrow">INTAKE DASHBOARD</p>
+          <h1>특허상담 접수관리</h1>
+          <p>접수된 상담을 확인하고 담당자·진행상태·관리자 메모를 관리합니다.</p>
+        </div>
+        <button id="refreshBtn" class="secondary-btn" type="button">새로고침</button>
+      </div>
+
+      <section id="summaryCards" class="summary-grid">
+        <article><span>전체 접수</span><strong id="countAll">0</strong></article>
+        <article><span>신규접수</span><strong id="countNew">0</strong></article>
+        <article><span>검토중</span><strong id="countReview">0</strong></article>
+        <article><span>추가자료 요청</span><strong id="countRequest">0</strong></article>
+        <article><span>출원진행</span><strong id="countFiling">0</strong></article>
+        <article><span>출원완료</span><strong id="countDone">0</strong></article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-toolbar">
+          <div class="filters">
+            <input id="searchInput" type="search" placeholder="접수번호·신청자·회사·발명명칭 검색" />
+            <select id="statusFilter">
+              <option value="">전체 상태</option>
+              <option>신규접수</option>
+              <option>검토중</option>
+              <option>추가자료 요청</option>
+              <option>출원진행</option>
+              <option>출원완료</option>
+            </select>
+          </div>
+          <span id="listCount" class="list-count">0건</span>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>접수번호</th>
+                <th>접수일시</th>
+                <th>서비스</th>
+                <th>신청자</th>
+                <th>회사</th>
+                <th>발명의 명칭</th>
+                <th>진행상태</th>
+                <th>담당자</th>
+              </tr>
+            </thead>
+            <tbody id="applicationTableBody">
+              <tr><td colspan="8" class="empty">접수 내역을 불러오는 중입니다.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <div id="detailModal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-card">
+      <button id="modalCloseBtn" class="modal-close" type="button">×</button>
+
+      <div class="modal-head">
+        <div>
+          <p class="eyebrow">APPLICATION DETAIL</p>
+          <h2 id="detailReceiptNo">접수 상세</h2>
+        </div>
+        <span id="detailStatusBadge" class="status-badge">신규접수</span>
+      </div>
+
+      <div class="modal-body">
+        <section class="detail-section">
+          <h3>신청 기본정보</h3>
+          <div id="basicDetail" class="detail-grid"></div>
+        </section>
+
+        <section class="detail-section">
+          <h3>발명 내용</h3>
+          <div id="inventionDetail" class="detail-stack"></div>
+        </section>
+
+        <section class="detail-section management">
+          <h3>관리자 처리</h3>
+
+          <div class="form-grid">
+            <label class="field">
+              <span>진행상태</span>
+              <select id="editStatus">
+                <option>신규접수</option>
+                <option>검토중</option>
+                <option>추가자료 요청</option>
+                <option>출원진행</option>
+                <option>출원완료</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>담당자</span>
+              <input id="editManager" type="text" placeholder="예: 김변리사" />
+            </label>
+          </div>
+
+          <label class="field">
+            <span>관리자 메모</span>
+            <textarea id="editMemo" rows="5" placeholder="추가자료 요청사항, 상담 메모 등을 입력"></textarea>
+          </label>
+
+          <button id="saveDetailBtn" class="primary-btn" type="button">변경사항 저장</button>
+          <span id="saveDetailMessage" class="message"></span>
+        </section>
+
+        <section class="detail-section">
+          <h3>진행이력</h3>
+          <div id="historyList" class="history-list"></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
