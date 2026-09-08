@@ -1,3 +1,9 @@
+// 특허 상담·출원 접수 포털 - GitHub Pages 운영용 V2
+// 1) 아래 API_URL에 Apps Script "웹 앱 URL"을 붙여넣으세요.
+// 2) 예: https://script.google.com/macros/s/AKfycb.../exec
+
+const API_URL = '여기에_APPS_SCRIPT_웹앱_URL';
+
 const homeView = document.getElementById("homeView");
 const wizardView = document.getElementById("wizardView");
 const successView = document.getElementById("successView");
@@ -19,6 +25,7 @@ const receiptNo = document.getElementById("receiptNo");
 
 let currentStep = 0;
 let serviceType = "precheck";
+let isSubmitting = false;
 
 const serviceMeta = {
   precheck: {
@@ -31,11 +38,7 @@ const serviceMeta = {
   },
   brand: {
     title: "상표·디자인 상담",
-    subtitle: "현재 데모에서는 특허 질문 흐름으로 연결됩니다. 실제 운영 시 별도 폼으로 분리합니다."
-  },
-  status: {
-    title: "진행상황 조회",
-    subtitle: "실제 운영 버전에서 접수번호 조회 기능을 연결합니다."
+    subtitle: "현재 V2에서는 특허 질문 흐름으로 연결됩니다. 상표·디자인 전용 폼은 다음 단계에서 분리합니다."
   }
 };
 
@@ -46,15 +49,15 @@ function showView(view) {
 }
 
 function startWizard(type = "precheck") {
+  if (type === "status") {
+    showStatusLookup();
+    return;
+  }
+
   serviceType = type;
   const meta = serviceMeta[type] || serviceMeta.precheck;
   wizardTitle.textContent = meta.title;
   wizardSubtitle.textContent = meta.subtitle;
-
-  if (type === "status") {
-    alert("진행상황 조회는 백엔드 연결 단계에서 접수번호 기반으로 구현하면 됩니다.");
-    return;
-  }
 
   loadDraft();
   showView(wizardView);
@@ -92,24 +95,29 @@ function validateCurrentStep() {
       }
       continue;
     }
+
     if (el.type === "checkbox" && !el.checked) {
       alert("필수 동의 항목을 확인해주세요.");
       return false;
     }
-    if (!el.value.trim()) {
+
+    if (!String(el.value || "").trim()) {
       el.focus();
       el.reportValidity();
       return false;
     }
   }
+
   return true;
 }
 
 function formDataObject() {
   const fd = new FormData(form);
   const obj = {};
+
   for (const [key, value] of fd.entries()) {
     if (value instanceof File) continue;
+
     if (obj[key]) {
       if (!Array.isArray(obj[key])) obj[key] = [obj[key]];
       obj[key].push(value);
@@ -117,7 +125,12 @@ function formDataObject() {
       obj[key] = value;
     }
   }
+
   obj.serviceType = serviceType;
+  obj.attachmentNames = [...document.getElementById("fileInput").files]
+    .map(f => f.name)
+    .join(", ");
+
   return obj;
 }
 
@@ -127,19 +140,26 @@ function saveDraft(manual = false) {
     currentStep,
     data: formDataObject()
   }));
+
   saveState.textContent = manual ? "임시저장 완료" : "자동저장됨";
-  if (manual) setTimeout(() => saveState.textContent = "임시저장됨", 1400);
+
+  if (manual) {
+    setTimeout(() => saveState.textContent = "임시저장됨", 1400);
+  }
 }
 
 function loadDraft() {
   const raw = localStorage.getItem("patentIntakeDraft");
   if (!raw) return;
+
   try {
     const draft = JSON.parse(raw);
     if (!draft?.data) return;
+
     Object.entries(draft.data).forEach(([name, value]) => {
       const fields = [...form.querySelectorAll(`[name="${name}"]`)];
       if (!fields.length) return;
+
       fields.forEach(field => {
         if (field.type === "radio") {
           field.checked = field.value === value;
@@ -170,7 +190,8 @@ const labels = {
   effects: "기대 효과",
   differentiation: "핵심 차별점",
   disclosed: "공개 여부",
-  disclosureNote: "공개 내용 / 참고사항"
+  disclosureNote: "공개 내용 / 참고사항",
+  attachmentNames: "첨부파일"
 };
 
 function buildReview() {
@@ -187,15 +208,126 @@ function buildReview() {
   });
 }
 
-function generateReceipt() {
+async function submitToServer() {
+  if (!API_URL || API_URL.includes("여기에_")) {
+    alert("script.js 상단의 API_URL에 Apps Script 웹 앱 주소를 먼저 넣어주세요.");
+    return;
+  }
+
+  if (isSubmitting) return;
+  isSubmitting = true;
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "접수 중...";
+
+  try {
+    const payload = {
+      action: "submit",
+      ...formDataObject(),
+      website: "" // honeypot
+    };
+
+    const response = await fetch(API_URL, {
+      method: "POST",
+      redirect: "follow",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      throw new Error(`서버 응답 오류 (${response.status})`);
+    }
+
+    const result = await response.json();
+
+    if (!result.ok) {
+      throw new Error(result.message || "접수에 실패했습니다.");
+    }
+
+    localStorage.removeItem("patentIntakeDraft");
+
+    receiptNo.textContent = result.receiptNo;
+    form.reset();
+    currentStep = 0;
+    showView(successView);
+  } catch (err) {
+    console.error(err);
+    alert(
+      "접수 중 오류가 발생했습니다.\n\n" +
+      (err.message || err) +
+      "\n\n잠시 후 다시 시도해주세요."
+    );
+  } finally {
+    isSubmitting = false;
+    submitBtn.disabled = false;
+    submitBtn.textContent = "접수하기";
+  }
+}
+
+function showStatusLookup() {
+  const receipt = prompt("접수번호를 입력해주세요.\n예: IP-20260908-0001");
+  if (!receipt) return;
+
+  const phone = prompt("신청 당시 연락처를 입력해주세요.\n예: 010-1234-5678");
+  if (!phone) return;
+
+  lookupStatus(receipt, phone);
+}
+
+async function lookupStatus(receipt, phone) {
+  if (!API_URL || API_URL.includes("여기에_")) {
+    alert("script.js 상단의 API_URL에 Apps Script 웹 앱 주소를 먼저 넣어주세요.");
+    return;
+  }
+
+  try {
+    const url =
+      `${API_URL}?action=status` +
+      `&receiptNo=${encodeURIComponent(receipt)}` +
+      `&phone=${encodeURIComponent(phone)}`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      redirect: "follow"
+    });
+
+    if (!response.ok) {
+      throw new Error(`서버 응답 오류 (${response.status})`);
+    }
+
+    const result = await response.json();
+
+    if (!result.ok) {
+      alert(result.message || "조회 결과가 없습니다.");
+      return;
+    }
+
+    alert(
+      `접수번호: ${result.receiptNo}\n` +
+      `신청자: ${result.name}\n` +
+      `발명의 명칭: ${result.inventionTitle}\n` +
+      `현재 상태: ${result.status}\n` +
+      `담당자: ${result.manager}\n` +
+      `최종 변경: ${result.updatedAt}`
+    );
+  } catch (err) {
+    console.error(err);
+    alert("진행상황 조회 중 오류가 발생했습니다.\n" + (err.message || err));
+  }
+}
+
+function generateLocalFallbackReceipt() {
   const now = new Date();
   const date = now.toISOString().slice(0,10).replaceAll("-","");
   const rand = Math.floor(1000 + Math.random() * 9000);
-  return `IP-${date}-${rand}`;
+  return `TEMP-${date}-${rand}`;
 }
 
 nextBtn.addEventListener("click", () => {
   if (!validateCurrentStep()) return;
+
   saveDraft();
   currentStep = Math.min(currentStep + 1, steps.length - 1);
   renderStep();
@@ -216,31 +348,20 @@ form.addEventListener("input", () => {
   window.__draftTimer = setTimeout(() => saveDraft(), 600);
 });
 
-form.addEventListener("submit", (e) => {
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
   if (!validateCurrentStep()) return;
-
-  const payload = {
-    receiptNo: generateReceipt(),
-    submittedAt: new Date().toISOString(),
-    ...formDataObject()
-  };
-
-  console.log("SUBMISSION PAYLOAD", payload);
-  localStorage.removeItem("patentIntakeDraft");
-
-  receiptNo.textContent = payload.receiptNo;
-  form.reset();
-  currentStep = 0;
-  showView(successView);
+  await submitToServer();
 });
 
 document.querySelectorAll("[data-start]").forEach(btn => {
   btn.addEventListener("click", () => startWizard(btn.dataset.start));
 });
+
 document.querySelectorAll("[data-service]").forEach(btn => {
   btn.addEventListener("click", () => startWizard(btn.dataset.service));
 });
+
 document.querySelectorAll("[data-go-home]").forEach(btn => {
   btn.addEventListener("click", (e) => {
     e.preventDefault();
@@ -251,9 +372,12 @@ document.querySelectorAll("[data-go-home]").forEach(btn => {
 const fileInput = document.getElementById("fileInput");
 const fileButton = document.getElementById("fileButton");
 const fileList = document.getElementById("fileList");
+
 fileButton.addEventListener("click", () => fileInput.click());
+
 fileInput.addEventListener("change", () => {
   const files = [...fileInput.files];
+
   fileList.textContent = files.length
     ? files.map(f => f.name).join(" · ")
     : "";
