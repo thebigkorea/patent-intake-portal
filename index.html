@@ -32,7 +32,7 @@
       <div class="hero">
         <div class="hero-copy">
           <p class="eyebrow">PATENT · TRADEMARK · DESIGN</p>
-          <h1>아이디어를<br><span>권리로 만드는<br> 첫 단계</span></h1>
+          <h1>아이디어를<br><span>권리로 만드는 첫 단계</span></h1>
           <p class="hero-text">
             어려운 특허 서류부터 작성하지 마세요. 핵심 내용만 단계별로 입력하면
             변리사가 검토하여 출원 가능성과 방향을 안내합니다.
@@ -178,11 +178,31 @@
               <div class="field-grid two">
                 <label class="field">
                   <span>연락처 *</span>
-                  <input name="phone" type="tel" placeholder="010-0000-0000" required />
+                  <div class="phone-input-group">
+                    <span class="phone-prefix">010</span><span class="phone-dash">-</span>
+                    <input id="phoneMiddle" type="text" inputmode="numeric" maxlength="4" placeholder="1234" aria-label="휴대전화 가운데 4자리" required />
+                    <span class="phone-dash">-</span>
+                    <input id="phoneLast" type="text" inputmode="numeric" maxlength="4" placeholder="5678" aria-label="휴대전화 마지막 4자리" required />
+                  </div>
+                  <input id="phoneValue" name="phone" type="hidden" />
                 </label>
                 <label class="field">
                   <span>이메일 *</span>
-                  <input name="email" type="email" placeholder="example@email.com" required />
+                  <div class="email-input-group">
+                    <input id="emailLocal" type="text" autocomplete="email" placeholder="아이디" aria-label="이메일 아이디" required />
+                    <span class="email-at">@</span>
+                    <select id="emailDomain" aria-label="이메일 도메인">
+                      <option value="naver.com">naver.com</option>
+                      <option value="gmail.com">gmail.com</option>
+                      <option value="daum.net">daum.net</option>
+                      <option value="hanmail.net">hanmail.net</option>
+                      <option value="kakao.com">kakao.com</option>
+                      <option value="nate.com">nate.com</option>
+                      <option value="direct">직접입력</option>
+                    </select>
+                    <input id="emailDomainDirect" class="hidden" type="text" placeholder="직접입력" aria-label="이메일 도메인 직접입력" />
+                  </div>
+                  <input id="emailValue" name="email" type="hidden" />
                 </label>
               </div>
             </section>

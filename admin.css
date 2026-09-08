@@ -33,7 +33,7 @@ input,select,textarea{width:100%;border:1px solid #d7dce0;background:#fff;border
 input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(183,146,85,.10)}
 textarea{resize:vertical;line-height:1.5}
 .message{font-size:12px;color:var(--danger);margin:9px 0 0}
-.dashboard{max-width:1380px;margin:0 auto;padding:34px 24px 70px}
+.dashboard{max-width:1380px;margin:0 auto;padding:42px 24px 70px}
 .page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px}
 .page-head p{margin-bottom:0}
 .summary-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin:28px 0 18px}
@@ -59,11 +59,15 @@ textarea{resize:vertical;line-height:1.5}
 .result-summary span{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .toolbar-actions{display:flex;gap:8px}
 .table-wrap{overflow:auto}
-table{width:100%;border-collapse:collapse;min-width:1450px}
+table{width:100%;border-collapse:collapse;min-width:980px}
 th,td{padding:12px 12px;border-bottom:1px solid #edf0f2;text-align:left;font-size:12px;white-space:nowrap}
 th{background:#f7f8f9;color:#576574;font-size:11px;position:sticky;top:0}
 tbody tr{cursor:pointer}
-tbody tr:hover{background:#faf8f2}
+tbody tr{transition:background .15s ease,box-shadow .15s ease}
+tbody tr:hover{background:#fbf5e9;box-shadow:inset 3px 0 0 var(--gold)}
+.receipt-link{border:0;background:transparent;padding:0;color:#0d4f83;font-weight:900;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.title-cell{max-width:300px;overflow:hidden;text-overflow:ellipsis}
+.page-head{padding-top:4px}
 .empty{text-align:center;color:#8a949d;padding:34px}
 .status-chip,.status-badge{display:inline-block;border-radius:999px;padding:5px 9px;font-size:10px;font-weight:900;background:#edf0f2;color:#3d4e5c}
 .status-chip[data-status="신규접수"],.status-badge[data-status="신규접수"]{background:#edf2f7;color:#294d6c}

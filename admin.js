@@ -108,7 +108,7 @@ async function login() {
 }
 
 async function loadApplications() {
-  tbody.innerHTML = `<tr><td colspan="11" class="empty">접수 내역을 불러오는 중입니다.</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="7" class="empty">접수 내역을 불러오는 중입니다.</td></tr>`;
 
   try {
     const result = await apiPost({
@@ -121,7 +121,7 @@ async function loadApplications() {
     refreshManagerFilter();
     renderTable();
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="11" class="empty">${escapeHtml(err.message || String(err))}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" class="empty">${escapeHtml(err.message || String(err))}</td></tr>`;
   }
 }
 
@@ -258,23 +258,19 @@ function renderTable() {
   activeFilterText.textContent = buildFilterSummary();
 
   if (!filtered.length) {
-    tbody.innerHTML = `<tr><td colspan="11" class="empty">조건에 맞는 접수 내역이 없습니다.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" class="empty">조건에 맞는 접수 내역이 없습니다.</td></tr>`;
     return;
   }
 
   tbody.innerHTML = filtered.map(item => `
-    <tr data-receipt="${escapeHtml(item.receiptNo)}">
-      <td><strong>${escapeHtml(item.receiptNo)}</strong></td>
-      <td>${escapeHtml(item.submittedAt || "")}</td>
-      <td>${escapeHtml(item.serviceType || "")}</td>
+    <tr data-receipt="${escapeHtml(item.receiptNo)}" title="클릭하여 접수 상세보기">
+      <td><button type="button" class="receipt-link" tabindex="-1">${escapeHtml(item.receiptNo)}</button></td>
+      <td>${escapeHtml((item.submittedAt || "").slice(0,10))}</td>
       <td>${escapeHtml(item.name || "")}</td>
       <td>${escapeHtml(item.company || "")}</td>
-      <td>${escapeHtml(item.phone || "")}</td>
-      <td>${escapeHtml(item.inventionTitle || "")}</td>
-      <td>${escapeHtml(item.technicalField || "")}</td>
+      <td class="title-cell">${escapeHtml(item.inventionTitle || "")}</td>
       <td><span class="status-chip" data-status="${escapeHtml(item.status || "")}">${escapeHtml(item.status || "")}</span></td>
-      <td>${escapeHtml(item.manager || "")}</td>
-      <td>${escapeHtml(item.updatedAt || "")}</td>
+      <td>${escapeHtml(item.manager || "미지정")}</td>
     </tr>
   `).join("");
 
@@ -326,7 +322,7 @@ async function openDetail(receiptNo) {
       ["서비스", d.serviceType],
       ["신청자", d.name],
       ["회사/소속", d.company],
-      ["연락처", d.phone],
+      ["연락처", formatPhone(d.phone)],
       ["이메일", d.email]
     ].map(([label,value]) => detailItem(label,value)).join("");
 
@@ -440,6 +436,12 @@ function closeModal() {
   modal.classList.add("hidden");
   currentReceiptNo = "";
   document.body.style.overflow = "";
+}
+
+function formatPhone(value) {
+  const digits=String(value||"").replace(/\D/g,"");
+  if (digits.length===11 && digits.startsWith("010")) return `${digits.slice(0,3)}-${digits.slice(3,7)}-${digits.slice(7)}`;
+  return value || "";
 }
 
 function escapeHtml(value) {
