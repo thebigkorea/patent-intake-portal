@@ -373,7 +373,7 @@ async function openDetail(receiptNo) {
       {label:"핵심 차별점",value:d.differentiation,wide:true,featured:true},
       {label:"공개 여부",value:d.disclosed},
       {label:"공개 내용/참고사항",value:d.disclosureNote,wide:true},
-      {label:"첨부파일",value:d.attachmentInfo,wide:true}
+      {label:"첨부파일",value:d.attachmentInfo,attachments:d.attachments || [],wide:true}
     ];
 
     inventionDetail.innerHTML = inventionItems.map(inventionItem).join("");
@@ -398,7 +398,54 @@ function detailItem(label,value) {
 
 function inventionItem(item) {
   const classes = ["detail-item",item.wide?"wide":"",item.featured?"featured":""].filter(Boolean).join(" ");
+
+  if (item.label === "첨부파일") {
+    const files = Array.isArray(item.attachments) ? item.attachments : [];
+    return `
+      <div class="${classes}">
+        <span>${escapeHtml(item.label)}</span>
+        ${renderAttachments(files, item.value)}
+      </div>
+    `;
+  }
+
   return `<div class="${classes}"><span>${escapeHtml(item.label)}</span><p>${escapeHtml(item.value || "—")}</p></div>`;
+}
+
+function renderAttachments(files, fallbackValue) {
+  if (files.length) {
+    return `
+      <div class="attachment-list">
+        ${files.map(file => {
+          const name = escapeHtml(file.name || "첨부파일");
+          const url = safeDriveUrl(file.url || "");
+          const size = Number(file.size || 0);
+          const sizeText = size ? ` · ${(size / 1024 / 1024).toFixed(1)}MB` : "";
+
+          if (!url) {
+            return `<div class="attachment-row"><span class="attachment-name">${name}${sizeText}</span></div>`;
+          }
+
+          return `
+            <div class="attachment-row">
+              <div>
+                <strong class="attachment-name">${name}</strong>
+                <small>${escapeHtml(file.mimeType || "")}${sizeText}</small>
+              </div>
+              <a class="attachment-open-btn" href="${url}" target="_blank" rel="noopener noreferrer">Drive에서 열기 ↗</a>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    `;
+  }
+
+  return `<p>${escapeHtml(fallbackValue || "첨부파일 없음")}</p>`;
+}
+
+function safeDriveUrl(value) {
+  const url = String(value || "").trim();
+  return /^https:\/\/(drive|docs)\.google\.com\//i.test(url) ? escapeHtml(url) : "";
 }
 
 function populateManagerOptions() {

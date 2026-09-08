@@ -1,3 +1,8 @@
+const API_URL = "https://script.google.com/macros/s/AKfycbwty1ir537jUHhGDE088UtX3tkqhqXfShEa_KXEa2JU6lpX83dCI23UIUMm5GNrprCq/exec";
+const MAX_UPLOAD_FILES = 3;
+const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+const ALLOWED_UPLOAD_TYPES = ["image/jpeg", "image/png", "application/pdf"];
+
 const homeView = document.getElementById("homeView");
 const wizardView = document.getElementById("wizardView");
 const successView = document.getElementById("successView");
@@ -254,12 +259,6 @@ function buildReview() {
   });
 }
 
-function generateReceipt() {
-  const now = new Date();
-  const date = now.toISOString().slice(0,10).replaceAll("-","");
-  const rand = Math.floor(1000 + Math.random() * 9000);
-  return `IP-${date}-${rand}`;
-}
 
 nextBtn.addEventListener("click", () => {
   if (!validateCurrentStep()) return;
@@ -283,23 +282,110 @@ form.addEventListener("input", () => {
   window.__draftTimer = setTimeout(() => saveDraft(), 600);
 });
 
-form.addEventListener("submit", (e) => {
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
+  syncContactFields();
+
   if (!validateCurrentStep()) return;
 
-  const payload = {
-    receiptNo: generateReceipt(),
-    submittedAt: new Date().toISOString(),
-    ...formDataObject()
-  };
+  if (!phoneValue.value) {
+    alert("연락처를 확인해주세요.");
+    phoneFirst.focus();
+    return;
+  }
 
-  console.log("SUBMISSION PAYLOAD", payload);
-  localStorage.removeItem("patentIntakeDraft");
+  if (!emailValue.value) {
+    alert("이메일을 확인해주세요.");
+    emailLocal.focus();
+    return;
+  }
 
-  receiptNo.textContent = payload.receiptNo;
-  form.reset();
-  currentStep = 0;
-  showView(successView);
+  const selectedFiles = [...fileInput.files];
+  const fileProblem = validateSelectedFiles(selectedFiles);
+  if (fileProblem) {
+    alert(fileProblem);
+    currentStep = Math.min(6, steps.length - 1);
+    renderStep();
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "접수 중...";
+  saveState.textContent = "접수 처리 중...";
+
+  try {
+    const payload = {
+      action: "submit",
+      ...formDataObject(),
+      attachmentNames: selectedFiles.map(file => file.name).join(" · ")
+    };
+
+    const result = await apiPost(payload);
+    const newReceiptNo = result.receiptNo;
+
+    let uploadWarnings = [];
+
+    if (selectedFiles.length) {
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        submitBtn.textContent = `첨부 ${i + 1}/${selectedFiles.length} 업로드 중...`;
+        saveState.textContent = `${file.name} 업로드 중...`;
+
+        try {
+          const base64 = await fileToBase64(file);
+          await apiPost({
+            action: "uploadAttachment",
+            receiptNo: newReceiptNo,
+            uploadToken: result.uploadToken,
+            fileName: file.name,
+            mimeType: file.type,
+            fileSize: file.size,
+            base64
+          });
+        } catch (uploadErr) {
+          uploadWarnings.push(`${file.name}: ${uploadErr.message || uploadErr}`);
+        }
+      }
+
+      try {
+        await apiPost({
+          action: "finalizeUpload",
+          receiptNo: newReceiptNo,
+          uploadToken: result.uploadToken
+        });
+      } catch (finalizeErr) {
+        console.warn("finalizeUpload failed", finalizeErr);
+      }
+    }
+
+    localStorage.removeItem("patentIntakeDraft");
+    receiptNo.textContent = newReceiptNo;
+
+    form.reset();
+    if (phoneFirst) phoneFirst.value = "010";
+    if (emailDomain) emailDomain.value = "naver.com";
+    if (emailDomainDirect) emailDomainDirect.classList.add("hidden");
+    syncContactFields();
+
+    currentStep = 0;
+    showView(successView);
+
+    if (uploadWarnings.length) {
+      setTimeout(() => {
+        alert(
+          "접수는 정상 완료되었지만 일부 첨부파일 업로드에 실패했습니다.\n\n" +
+          uploadWarnings.join("\n") +
+          "\n\n실패한 자료는 안내된 상담 이메일로 보내주세요."
+        );
+      }, 100);
+    }
+  } catch (err) {
+    alert(err.message || "접수 처리 중 오류가 발생했습니다.");
+    saveState.textContent = "접수 실패";
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "접수하기";
+  }
 });
 
 document.querySelectorAll("[data-start]").forEach(btn => {
@@ -319,35 +405,101 @@ const fileInput = document.getElementById("fileInput");
 const fileButton = document.getElementById("fileButton");
 const fileList = document.getElementById("fileList");
 fileButton.addEventListener("click", () => fileInput.click());
-fileInput.addEventListener("change", () => {
-  const files = [...fileInput.files];
-  const allowed = ["image/jpeg", "image/png", "application/pdf"];
-  const maxFiles = 3;
-  const maxBytes = 5 * 1024 * 1024;
-
+function validateSelectedFiles(files) {
   const problems = [];
-  if (files.length > maxFiles) problems.push(`파일은 최대 ${maxFiles}개까지 선택할 수 있습니다.`);
+
+  if (files.length > MAX_UPLOAD_FILES) {
+    problems.push(`파일은 최대 ${MAX_UPLOAD_FILES}개까지 첨부할 수 있습니다.`);
+  }
 
   files.forEach(file => {
-    if (!allowed.includes(file.type)) {
-      problems.push(`${file.name}: JPG, PNG, PDF 파일만 선택할 수 있습니다.`);
+    if (!ALLOWED_UPLOAD_TYPES.includes(file.type)) {
+      problems.push(`${file.name}: JPG, PNG, PDF 파일만 첨부할 수 있습니다.`);
     }
-    if (file.size > maxBytes) {
-      problems.push(`${file.name}: 5MB를 초과했습니다.`);
+    if (file.size > MAX_UPLOAD_BYTES) {
+      problems.push(`${file.name}: 파일당 5MB를 초과했습니다.`);
     }
   });
 
-  if (problems.length) {
+  return problems.join("
+");
+}
+
+fileInput.addEventListener("change", () => {
+  const files = [...fileInput.files];
+  const problem = validateSelectedFiles(files);
+
+  if (problem) {
     fileInput.value = "";
-    fileList.textContent = problems.join(" ");
+    fileList.textContent = problem.replace(/
+/g, " ");
     fileList.classList.add("file-error");
     return;
   }
 
   fileList.classList.remove("file-error");
   fileList.textContent = files.length
-    ? files.map(f => `${f.name} (${(f.size / 1024 / 1024).toFixed(1)}MB)`).join(" · ")
+    ? files.map(file => `${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`).join(" · ")
     : "선택된 파일이 없습니다.";
 });
+
+
+async function apiPost(payload) {
+  const response = await fetch(API_URL, {
+    method: "POST",
+    redirect: "follow",
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    throw new Error(`서버 응답 오류 (${response.status})`);
+  }
+
+  const result = await response.json();
+
+  if (!result.ok) {
+    throw new Error(result.message || "요청 처리에 실패했습니다.");
+  }
+
+  return result;
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const value = String(reader.result || "");
+      const comma = value.indexOf(",");
+      resolve(comma >= 0 ? value.slice(comma + 1) : value);
+    };
+
+    reader.onerror = () => reject(new Error(`${file.name} 파일을 읽지 못했습니다.`));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function loadPublicConfig() {
+  try {
+    const response = await fetch(`${API_URL}?action=config`, { redirect: "follow" });
+    const result = await response.json();
+    const emailEl = document.getElementById("supportEmailText");
+
+    if (emailEl) {
+      if (result.ok && result.supportEmail) {
+        emailEl.textContent = result.supportEmail;
+      } else {
+        emailEl.textContent = "회사 상담 이메일 주소";
+      }
+    }
+  } catch (err) {
+    console.warn("config load failed", err);
+  }
+}
+loadPublicConfig();
+
 
 renderStep();

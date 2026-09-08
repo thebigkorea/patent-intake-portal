@@ -450,3 +450,50 @@ input:focus, textarea:focus { border-bottom-color: var(--gold); }
 }
 
 .file-error{color:#a94534!important;font-weight:700}
+
+
+/* V9 contact & upload */
+.phone-group .phone-first{
+  font-weight:800;
+  color:#173a5f;
+}
+
+.email-input-group{
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) auto minmax(180px,1fr);
+  gap:10px;
+  align-items:center;
+}
+.email-input-group #emailLocal,
+.email-input-group #emailDomain,
+.email-input-group #emailDomainDirect{
+  width:100%;
+  min-width:0;
+}
+.email-input-group .email-at{
+  padding:0 2px;
+  text-align:center;
+}
+
+.upload-placeholder{
+  padding:22px 24px !important;
+}
+.upload-help-box{
+  max-width:620px;
+}
+.upload-extra-notice{
+  margin-top:14px;
+}
+#fileList{
+  margin-top:10px;
+  line-height:1.55;
+}
+
+@media(max-width:680px){
+  .email-input-group{
+    grid-template-columns:1fr;
+  }
+  .email-input-group .email-at{
+    display:none;
+  }
+}
