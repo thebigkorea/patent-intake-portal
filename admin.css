@@ -289,3 +289,32 @@ td:nth-child(7){
     max-height:none;
   }
 }
+
+
+/* =========================================================
+   V8 OPERATIONS-FIRST ADMIN
+   ========================================================= */
+.ops-side{display:flex;align-items:center;gap:8px}
+.ops-alert{
+  min-width:126px;height:52px;padding:8px 11px;border:1px solid #d8e4f3;
+  border-radius:12px;background:#fff;display:flex;align-items:center;gap:9px;
+  box-shadow:0 5px 18px rgba(28,78,130,.05)
+}
+.ops-alert-icon{
+  width:29px;height:29px;border-radius:9px;display:grid;place-items:center;
+  background:#eef5ff;color:#1769d2;font-size:11px;font-weight:900
+}
+.ops-alert strong{display:block;font-size:14px;color:#12385f}
+.ops-alert small{display:block;margin-top:1px;font-size:9px;color:#77899c}
+#staleAlert .ops-alert-icon{background:#fff2e5;color:#b76a13}
+.table-wrap{max-height:390px}
+table{min-width:1380px}
+.memo-cell{max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#53677c}
+.age-chip,.attach-chip,.muted-chip{
+ display:inline-block;border-radius:999px;padding:4px 7px;font-size:10px;font-weight:800;white-space:nowrap
+}
+.age-chip{background:#edf4fc;color:#416584}
+.age-chip.overdue{background:#fff0e8;color:#b4532c}
+.attach-chip{background:#e9f8ef;color:#258455}
+.muted-chip{background:#f1f3f5;color:#87929d}
+@media(max-width:900px){.ops-alert{display:none}}

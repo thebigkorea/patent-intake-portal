@@ -110,7 +110,7 @@ async function login() {
 }
 
 async function loadApplications() {
-  tbody.innerHTML = `<tr><td colspan="8" class="empty">접수 내역을 불러오는 중입니다.</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="13" class="empty">접수 내역을 불러오는 중입니다.</td></tr>`;
 
   try {
     const result = await apiPost({
@@ -123,7 +123,7 @@ async function loadApplications() {
     refreshManagerFilter();
     renderTable();
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="8" class="empty">${escapeHtml(err.message || String(err))}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="13" class="empty">${escapeHtml(err.message || String(err))}</td></tr>`;
   }
 }
 
@@ -264,7 +264,7 @@ function renderTable() {
   activeFilterText.textContent = buildFilterSummary();
 
   if (!filtered.length) {
-    tbody.innerHTML = `<tr><td colspan="8" class="empty">조건에 맞는 접수 내역이 없습니다.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="13" class="empty">조건에 맞는 접수 내역이 없습니다.</td></tr>`;
     return;
   }
 
@@ -455,6 +455,42 @@ function formatPhone(value) {
   if (digits.length === 10) return `${digits.slice(0,3)}-${digits.slice(3,6)}-${digits.slice(6)}`;
   if (digits.length === 11) return `${digits.slice(0,3)}-${digits.slice(3,7)}-${digits.slice(7)}`;
   return String(value || "");
+}
+
+
+function parseItemDate(item) {
+  const raw = item.submittedAt || item.submittedDate || "";
+  if (!raw) return null;
+  const normalized = String(raw).replace(/\./g, "-").replace(/년|월/g, "-").replace(/일/g, "");
+  const d = new Date(normalized);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function getElapsedDays(item) {
+  const d = parseItemDate(item);
+  if (!d) return 0;
+  const today = new Date();
+  d.setHours(0,0,0,0);
+  today.setHours(0,0,0,0);
+  return Math.max(0, Math.floor((today - d) / 86400000));
+}
+
+function hasAttachment(item) {
+  return Boolean(item.attachmentInfo || item.attachmentUrl || item.attachmentURL || item.fileUrl || item.fileURL);
+}
+
+function shortText(value, maxLen) {
+  const s = String(value || "").trim();
+  return s.length > maxLen ? s.slice(0, maxLen) + "…" : s;
+}
+
+function updateOperationalAlerts() {
+  const unassigned = applications.filter(x => !String(x.manager || "").trim() || x.manager === "미지정").length;
+  const stale = applications.filter(x => x.status !== "출원완료" && getElapsedDays(x) >= 7).length;
+  const a = document.getElementById("countUnassigned");
+  const b = document.getElementById("countStale");
+  if (a) a.textContent = `${unassigned}건`;
+  if (b) b.textContent = `${stale}건`;
 }
 
 function escapeHtml(value) {
