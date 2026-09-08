@@ -421,8 +421,7 @@ function validateSelectedFiles(files) {
     }
   });
 
-  return problems.join("
-");
+  return problems.join("\n");
 }
 
 fileInput.addEventListener("change", () => {
@@ -431,8 +430,7 @@ fileInput.addEventListener("change", () => {
 
   if (problem) {
     fileInput.value = "";
-    fileList.textContent = problem.replace(/
-/g, " ");
+    fileList.textContent = problem.replace(/\n/g, " ");
     fileList.classList.add("file-error");
     return;
   }
