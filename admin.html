@@ -17,6 +17,9 @@
           <small>Patent Intake Administration</small>
         </div>
       </div>
+      <nav class="admin-nav" aria-label="관리자 메뉴">
+        <span class="nav-item active">접수관리</span>
+      </nav>
       <div class="top-actions">
         <a href="index.html" class="link-btn">고객 화면</a>
         <button id="logoutBtn" class="ghost-btn hidden" type="button">로그아웃</button>
@@ -27,196 +30,112 @@
   <main>
     <section id="loginView" class="login-view">
       <div class="login-card">
+        <div class="login-icon">IP</div>
         <p class="eyebrow">ADMIN ACCESS</p>
         <h1>관리자 접수관리</h1>
         <p class="desc">관리자 비밀번호를 입력하면 접수 현황과 신청 상세내용을 확인할 수 있습니다.</p>
-
         <label class="field">
           <span>관리자 비밀번호</span>
           <input id="adminKeyInput" type="password" autocomplete="current-password" placeholder="관리자 비밀번호 입력" />
         </label>
-
         <button id="loginBtn" class="primary-btn full" type="button">관리자 로그인</button>
         <p id="loginMessage" class="message"></p>
       </div>
     </section>
 
     <section id="dashboardView" class="dashboard hidden">
-      <div class="page-head">
-        <div>
+      <section class="hero-panel">
+        <div class="hero-copy">
           <p class="eyebrow">INTAKE DASHBOARD</p>
           <h1>특허상담 접수관리</h1>
           <p>접수 검색부터 상세내용 확인, 담당자·진행상태·메모 관리까지 한 화면에서 처리합니다.</p>
         </div>
-        <button id="refreshBtn" class="secondary-btn" type="button">새로고침</button>
-      </div>
+        <div class="hero-side">
+          <div class="hero-message">
+            <span class="hero-message-icon">✦</span>
+            <p>좋은 아이디어가 더 큰 가치로 이어질 수 있도록 체계적으로 관리합니다.</p>
+          </div>
+          <div class="date-card">
+            <div class="date-icon">▣</div>
+            <div>
+              <strong id="todayLabel">오늘</strong>
+              <span>접수 현황을 확인하세요.</span>
+            </div>
+          </div>
+          <button id="refreshBtn" class="refresh-btn" type="button">↻ 새로고침</button>
+        </div>
+      </section>
 
       <section class="summary-grid">
-        <article><span>전체 접수</span><strong id="countAll">0</strong></article>
-        <article><span>신규접수</span><strong id="countNew">0</strong></article>
-        <article><span>검토중</span><strong id="countReview">0</strong></article>
-        <article><span>추가자료 요청</span><strong id="countRequest">0</strong></article>
-        <article><span>출원진행</span><strong id="countFiling">0</strong></article>
-        <article><span>출원완료</span><strong id="countDone">0</strong></article>
+        <article class="summary-card tone-blue"><div class="kpi-icon">▤</div><div><span>전체 접수</span><strong id="countAll">0</strong></div></article>
+        <article class="summary-card tone-slate"><div class="kpi-icon">＋</div><div><span>신규접수</span><strong id="countNew">0</strong></div></article>
+        <article class="summary-card tone-yellow"><div class="kpi-icon">◴</div><div><span>검토중</span><strong id="countReview">0</strong></div></article>
+        <article class="summary-card tone-red"><div class="kpi-icon">!</div><div><span>추가자료 요청</span><strong id="countRequest">0</strong></div></article>
+        <article class="summary-card tone-cyan"><div class="kpi-icon">⚙</div><div><span>출원진행</span><strong id="countFiling">0</strong></div></article>
+        <article class="summary-card tone-green"><div class="kpi-icon">✓</div><div><span>출원완료</span><strong id="countDone">0</strong></div></article>
       </section>
 
       <section class="search-panel">
         <div class="search-panel-head">
-          <div>
-            <p class="eyebrow">ADVANCED SEARCH</p>
-            <h2>상세 검색</h2>
+          <div class="section-title">
+            <span class="section-icon">⌕</span>
+            <div><h2>상세 검색</h2><p>다양한 조건으로 접수 내역을 빠르게 찾을 수 있습니다.</p></div>
           </div>
-          <button id="toggleSearchBtn" class="ghost-btn" type="button">검색조건 접기</button>
+          <button id="toggleSearchBtn" class="ghost-btn" type="button">검색조건 접기⌃</button>
         </div>
-
         <div id="advancedSearchBody">
           <div class="search-grid search-grid-4">
-            <label class="field compact">
-              <span>접수 시작일</span>
-              <input id="dateFrom" type="date" />
-            </label>
-
-            <label class="field compact">
-              <span>접수 종료일</span>
-              <input id="dateTo" type="date" />
-            </label>
-
-            <label class="field compact">
-              <span>서비스구분</span>
-              <select id="serviceFilter">
-                <option value="">전체 서비스</option>
-                <option>특허 가능성 사전검토</option>
-                <option>특허출원 접수</option>
-                <option>상표·디자인 상담</option>
-              </select>
-            </label>
-
-            <label class="field compact">
-              <span>진행상태</span>
-              <select id="statusFilter">
-                <option value="">전체 상태</option>
-                <option>신규접수</option>
-                <option>검토중</option>
-                <option>추가자료 요청</option>
-                <option>출원진행</option>
-                <option>출원완료</option>
-              </select>
-            </label>
+            <label class="field compact"><span>접수 시작일</span><input id="dateFrom" type="date" /></label>
+            <label class="field compact"><span>접수 종료일</span><input id="dateTo" type="date" /></label>
+            <label class="field compact"><span>서비스구분</span><select id="serviceFilter"><option value="">전체 서비스</option><option>특허 가능성 사전검토</option><option>특허출원 접수</option><option>상표·디자인 상담</option></select></label>
+            <label class="field compact"><span>진행상태</span><select id="statusFilter"><option value="">전체 상태</option><option>신규접수</option><option>검토중</option><option>추가자료 요청</option><option>출원진행</option><option>출원완료</option></select></label>
           </div>
-
           <div class="search-grid search-grid-4">
-            <label class="field compact">
-              <span>담당자</span>
-              <select id="managerFilter">
-                <option value="">전체 담당자</option>
-              </select>
-            </label>
-
-            <label class="field compact">
-              <span>신청자</span>
-              <input id="nameFilter" type="text" placeholder="신청자명" />
-            </label>
-
-            <label class="field compact">
-              <span>회사/소속</span>
-              <input id="companyFilter" type="text" placeholder="회사명 또는 소속" />
-            </label>
-
+            <label class="field compact"><span>담당자</span><select id="managerFilter"><option value="">전체 담당자</option></select></label>
+            <label class="field compact"><span>신청자명</span><input id="nameFilter" type="text" placeholder="신청자명" /></label>
+            <label class="field compact"><span>회사/소속</span><input id="companyFilter" type="text" placeholder="회사명 또는 소속" /></label>
             <label class="field compact">
               <span>연락처</span>
               <div class="phone-search-group">
-                <input id="phoneFirstFilter" type="text" inputmode="numeric" maxlength="4" placeholder="010" aria-label="연락처 첫 번째 번호 검색" />
+                <input id="phoneFirstFilter" type="text" inputmode="numeric" maxlength="4" placeholder="010" />
                 <span>-</span>
-                <input id="phoneMiddleFilter" type="text" inputmode="numeric" maxlength="4" placeholder="1234" aria-label="연락처 가운데 번호 검색" />
+                <input id="phoneMiddleFilter" type="text" inputmode="numeric" maxlength="4" placeholder="1234" />
                 <span>-</span>
-                <input id="phoneLastFilter" type="text" inputmode="numeric" maxlength="4" placeholder="5678" aria-label="연락처 마지막 번호 검색" />
+                <input id="phoneLastFilter" type="text" inputmode="numeric" maxlength="4" placeholder="5678" />
               </div>
             </label>
           </div>
-
           <div class="search-grid search-grid-4">
-            <label class="field compact">
-              <span>이메일</span>
-              <input id="emailFilter" type="text" placeholder="이메일 일부" />
-            </label>
-
-            <label class="field compact">
-              <span>발명의 명칭</span>
-              <input id="titleFilter" type="text" placeholder="발명 명칭" />
-            </label>
-
-            <label class="field compact">
-              <span>기술 분야</span>
-              <input id="technicalFieldFilter" type="text" placeholder="예: 음식점 주문" />
-            </label>
-
-            <label class="field compact">
-              <span>공개 여부</span>
-              <select id="disclosedFilter">
-                <option value="">전체</option>
-                <option value="있음">있음</option>
-                <option value="없음">없음</option>
-              </select>
-            </label>
+            <label class="field compact"><span>이메일</span><input id="emailFilter" type="text" placeholder="이메일 일부" /></label>
+            <label class="field compact"><span>발명의 명칭</span><input id="titleFilter" type="text" placeholder="발명 명칭" /></label>
+            <label class="field compact"><span>기술 분야</span><input id="technicalFieldFilter" type="text" placeholder="예: 음식점 주문" /></label>
+            <label class="field compact"><span>공개 여부</span><select id="disclosedFilter"><option value="">전체</option><option value="있음">있음</option><option value="없음">없음</option></select></label>
           </div>
-
           <div class="search-grid search-grid-bottom">
-            <label class="field compact keyword-field">
-              <span>통합 키워드</span>
-              <input id="keywordFilter" type="search" placeholder="접수번호·신청자·회사·발명명칭·기술분야·문제점·해결과제·핵심차별점·메모까지 검색" />
-            </label>
-
-            <label class="field compact sort-field">
-              <span>정렬</span>
-              <select id="sortSelect">
-                <option value="newest">최신 접수순</option>
-                <option value="oldest">오래된 접수순</option>
-                <option value="updated">최근 수정순</option>
-                <option value="name">신청자 가나다순</option>
-              </select>
-            </label>
-
-            <div class="search-buttons">
-              <button id="resetSearchBtn" class="ghost-btn" type="button">초기화</button>
-              <button id="searchBtn" class="primary-btn" type="button">상세검색</button>
-            </div>
+            <label class="field compact keyword-field"><span>통합 키워드</span><input id="keywordFilter" type="search" placeholder="접수번호 · 신청자 · 회사 · 발명명칭 · 기술분야 · 문제점 · 해결과제 · 핵심차별점 · 메모까지 검색" /></label>
+            <label class="field compact sort-field"><span>정렬</span><select id="sortSelect"><option value="newest">최신 접수순</option><option value="oldest">오래된 접수순</option><option value="updated">최근 수정순</option><option value="name">신청자 가나다순</option></select></label>
+            <div class="search-buttons"><button id="resetSearchBtn" class="reset-btn" type="button">↻ 초기화</button><button id="searchBtn" class="search-btn" type="button">⌕ 검색하기</button></div>
           </div>
         </div>
       </section>
 
       <section class="panel">
         <div class="panel-toolbar">
-          <div class="result-summary">
-            <strong id="listCount">0건</strong>
-            <span id="activeFilterText">전체 접수건을 표시합니다.</span>
+          <div class="section-title compact-title">
+            <span class="section-icon small">☷</span>
+            <div><h2>검색 결과</h2><p><strong id="listCount">0건</strong> <span id="activeFilterText">전체 접수건을 표시합니다.</span></p></div>
           </div>
-          <div class="toolbar-actions">
-            <button id="clearQuickBtn" class="ghost-btn" type="button">검색조건 초기화</button>
-          </div>
+          <div class="toolbar-actions"><button id="clearQuickBtn" class="ghost-btn" type="button">검색조건 초기화</button></div>
         </div>
-
         <div class="table-wrap">
           <table>
-            <thead>
-              <tr>
-                <th>접수번호</th>
-                <th>접수일</th>
-                <th>신청자</th>
-                <th>회사/소속</th>
-                <th>발명의 명칭</th>
-                <th>진행상태</th>
-                <th>담당자</th>
-              </tr>
-            </thead>
-            <tbody id="applicationTableBody">
-              <tr><td colspan="7" class="empty">접수 내역을 불러오는 중입니다.</td></tr>
-            </tbody>
+            <thead><tr><th>접수번호</th><th>접수일</th><th>신청자</th><th>회사/소속</th><th>발명의 명칭</th><th>진행상태</th><th>담당자</th><th>관리</th></tr></thead>
+            <tbody id="applicationTableBody"><tr><td colspan="8" class="empty">접수 내역을 불러오는 중입니다.</td></tr></tbody>
           </table>
         </div>
       </section>
     </section>
   </main>
-
   <div id="detailModal" class="modal hidden">
     <div class="modal-backdrop"></div>
 
@@ -305,6 +224,7 @@
       </div>
     </div>
   </div>
+
 
   <script src="admin.js"></script>
 </body>

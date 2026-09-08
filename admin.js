@@ -110,7 +110,7 @@ async function login() {
 }
 
 async function loadApplications() {
-  tbody.innerHTML = `<tr><td colspan="7" class="empty">접수 내역을 불러오는 중입니다.</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="8" class="empty">접수 내역을 불러오는 중입니다.</td></tr>`;
 
   try {
     const result = await apiPost({
@@ -123,7 +123,7 @@ async function loadApplications() {
     refreshManagerFilter();
     renderTable();
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="7" class="empty">${escapeHtml(err.message || String(err))}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" class="empty">${escapeHtml(err.message || String(err))}</td></tr>`;
   }
 }
 
@@ -264,7 +264,7 @@ function renderTable() {
   activeFilterText.textContent = buildFilterSummary();
 
   if (!filtered.length) {
-    tbody.innerHTML = `<tr><td colspan="7" class="empty">조건에 맞는 접수 내역이 없습니다.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" class="empty">조건에 맞는 접수 내역이 없습니다.</td></tr>`;
     return;
   }
 
@@ -277,6 +277,7 @@ function renderTable() {
       <td class="title-cell">${escapeHtml(item.inventionTitle || "")}</td>
       <td><span class="status-chip" data-status="${escapeHtml(item.status || "")}">${escapeHtml(item.status || "")}</span></td>
       <td>${escapeHtml(item.manager || "미지정")}</td>
+      <td><button type="button" class="manage-btn" tabindex="-1">상세보기</button></td>
     </tr>
   `).join("");
 
@@ -445,9 +446,15 @@ function closeModal() {
 }
 
 function formatPhone(value) {
-  const digits=String(value||"").replace(/\D/g,"");
-  if (digits.length===11 && digits.startsWith("010")) return `${digits.slice(0,3)}-${digits.slice(3,7)}-${digits.slice(7)}`;
-  return value || "";
+  const digits = String(value || "").replace(/\D/g, "");
+  if (!digits) return "";
+  if (digits.startsWith("02")) {
+    if (digits.length === 9) return `${digits.slice(0,2)}-${digits.slice(2,5)}-${digits.slice(5)}`;
+    if (digits.length === 10) return `${digits.slice(0,2)}-${digits.slice(2,6)}-${digits.slice(6)}`;
+  }
+  if (digits.length === 10) return `${digits.slice(0,3)}-${digits.slice(3,6)}-${digits.slice(6)}`;
+  if (digits.length === 11) return `${digits.slice(0,3)}-${digits.slice(3,7)}-${digits.slice(7)}`;
+  return String(value || "");
 }
 
 function escapeHtml(value) {
@@ -485,7 +492,7 @@ sortSelect.addEventListener("change",renderTable);
 keywordFilter.addEventListener("keydown",e => { if (e.key === "Enter") renderTable(); });
 toggleSearchBtn.addEventListener("click",() => {
   const hidden = advancedSearchBody.classList.toggle("hidden");
-  toggleSearchBtn.textContent = hidden ? "검색조건 펼치기" : "검색조건 접기";
+  toggleSearchBtn.textContent = hidden ? "검색조건 펼치기⌄" : "검색조건 접기⌃";
 });
 
 modalCloseBtn.addEventListener("click",closeModal);
@@ -501,6 +508,15 @@ editManagerSelect.addEventListener("change",() => {
 document.addEventListener("keydown",e => {
   if (e.key === "Escape" && !modal.classList.contains("hidden")) closeModal();
 });
+
+function setTodayLabel(){
+  const el = document.getElementById("todayLabel");
+  if (!el) return;
+  const now = new Date();
+  const weekdays = ["일","월","화","수","목","금","토"];
+  el.textContent = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 (${weekdays[now.getDay()]})`;
+}
+setTodayLabel();
 
 populateManagerOptions();
 
