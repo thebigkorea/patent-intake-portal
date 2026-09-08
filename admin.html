@@ -17,6 +17,7 @@
           <small>Patent Intake Administration</small>
         </div>
       </div>
+
       <div class="top-actions">
         <a href="index.html" class="link-btn">고객 화면</a>
         <button id="logoutBtn" class="ghost-btn hidden" type="button">로그아웃</button>
@@ -35,7 +36,12 @@
 
         <label class="field">
           <span>관리자 비밀번호</span>
-          <input id="adminKeyInput" type="password" autocomplete="current-password" placeholder="관리자 비밀번호 입력" />
+          <input
+            id="adminKeyInput"
+            type="password"
+            autocomplete="current-password"
+            placeholder="관리자 비밀번호 입력"
+          />
         </label>
 
         <button id="loginBtn" class="primary-btn full" type="button">관리자 로그인</button>
@@ -53,7 +59,7 @@
         <button id="refreshBtn" class="secondary-btn" type="button">새로고침</button>
       </div>
 
-      <section id="summaryCards" class="summary-grid">
+      <section class="summary-grid">
         <article><span>전체 접수</span><strong id="countAll">0</strong></article>
         <article><span>신규접수</span><strong id="countNew">0</strong></article>
         <article><span>검토중</span><strong id="countReview">0</strong></article>
@@ -103,32 +109,56 @@
 
   <div id="detailModal" class="modal hidden">
     <div class="modal-backdrop"></div>
-    <div class="modal-card">
-      <button id="modalCloseBtn" class="modal-close" type="button">×</button>
 
-      <div class="modal-head">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="detailReceiptNo">
+      <header class="modal-head">
         <div>
           <p class="eyebrow">APPLICATION DETAIL</p>
-          <h2 id="detailReceiptNo">접수 상세</h2>
+          <div class="modal-title-row">
+            <h2 id="detailReceiptNo">접수 상세</h2>
+            <span id="detailStatusBadge" class="status-badge">신규접수</span>
+          </div>
         </div>
-        <span id="detailStatusBadge" class="status-badge">신규접수</span>
-      </div>
+        <button id="modalCloseBtn" class="modal-close" type="button" aria-label="닫기">×</button>
+      </header>
 
-      <div class="modal-body">
-        <section class="detail-section">
-          <h3>신청 기본정보</h3>
-          <div id="basicDetail" class="detail-grid"></div>
-        </section>
+      <div class="modal-layout">
+        <div class="modal-content">
+          <section class="detail-section compact-section">
+            <div class="section-heading">
+              <h3>신청 기본정보</h3>
+              <span>Applicant</span>
+            </div>
+            <div id="basicDetail" class="detail-grid basic-grid"></div>
+          </section>
 
-        <section class="detail-section">
-          <h3>발명 내용</h3>
-          <div id="inventionDetail" class="detail-stack"></div>
-        </section>
+          <section class="detail-section">
+            <div class="section-heading">
+              <h3>발명 내용</h3>
+              <span>Invention</span>
+            </div>
+            <div id="inventionDetail" class="invention-grid"></div>
+          </section>
 
-        <section class="detail-section management">
-          <h3>관리자 처리</h3>
+          <section class="detail-section">
+            <div class="section-heading">
+              <h3>진행이력</h3>
+              <span>History</span>
+            </div>
+            <div id="historyList" class="history-list"></div>
+          </section>
+        </div>
 
-          <div class="form-grid">
+        <aside class="admin-side">
+          <div class="admin-card">
+            <div class="admin-card-head">
+              <div>
+                <p class="eyebrow">MANAGEMENT</p>
+                <h3>관리자 처리</h3>
+              </div>
+              <span class="admin-note">저장 시 진행이력 자동 기록</span>
+            </div>
+
             <label class="field">
               <span>진행상태</span>
               <select id="editStatus">
@@ -142,23 +172,26 @@
 
             <label class="field">
               <span>담당자</span>
-              <input id="editManager" type="text" placeholder="예: 김변리사" />
+              <select id="editManagerSelect">
+                <option value="">미지정</option>
+                <option value="__custom__">직접 입력...</option>
+              </select>
             </label>
+
+            <label id="customManagerField" class="field compact-field hidden">
+              <span>담당자 직접 입력</span>
+              <input id="editManagerCustom" type="text" placeholder="예: 김변리사" />
+            </label>
+
+            <label class="field">
+              <span>관리자 메모</span>
+              <textarea id="editMemo" rows="8" placeholder="상담 메모, 추가자료 요청사항, 내부 검토 내용을 입력"></textarea>
+            </label>
+
+            <button id="saveDetailBtn" class="primary-btn full" type="button">변경사항 저장</button>
+            <p id="saveDetailMessage" class="save-message"></p>
           </div>
-
-          <label class="field">
-            <span>관리자 메모</span>
-            <textarea id="editMemo" rows="5" placeholder="추가자료 요청사항, 상담 메모 등을 입력"></textarea>
-          </label>
-
-          <button id="saveDetailBtn" class="primary-btn" type="button">변경사항 저장</button>
-          <span id="saveDetailMessage" class="message"></span>
-        </section>
-
-        <section class="detail-section">
-          <h3>진행이력</h3>
-          <div id="historyList" class="history-list"></div>
-        </section>
+        </aside>
       </div>
     </div>
   </div>
