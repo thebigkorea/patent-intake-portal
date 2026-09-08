@@ -186,7 +186,7 @@ function renderTable() {
         <td>${escapeHtml(item.company || "")}</td>
         <td>${escapeHtml(item.inventionTitle || "")}</td>
         <td>
-          <span class="status-chip">
+          <span class="status-chip" data-status="${escapeHtml(item.status || "")}">
             ${escapeHtml(item.status || "")}
           </span>
         </td>
@@ -226,6 +226,8 @@ async function openDetail(receiptNo) {
     const d = result.item;
 
     detailStatusBadge.textContent =
+      d.status || "신규접수";
+    detailStatusBadge.dataset.status =
       d.status || "신규접수";
 
     editStatus.value =
