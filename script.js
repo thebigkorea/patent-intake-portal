@@ -2,6 +2,9 @@ const API_URL = "https://script.google.com/macros/s/AKfycbwty1ir537jUHhGDE088UtX
 const MAX_UPLOAD_FILES = 3;
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 const ALLOWED_UPLOAD_TYPES = ["image/jpeg", "image/png", "application/pdf"];
+const DRAFT_KEY = "patentIntakeDraftV11";
+const LEGACY_DRAFT_KEYS = ["patentIntakeDraft","patentIntakeDraftV10","patentIntakeDraftV9","patentIntakeDraftV8"];
+
 
 const homeView = document.getElementById("homeView");
 const wizardView = document.getElementById("wizardView");
@@ -62,6 +65,8 @@ function startWizard(type = "precheck") {
   }
 
   loadDraft();
+  if (!localStorage.getItem(DRAFT_KEY) && phoneFirst) phoneFirst.value = "010";
+  syncContactFields();
   showView(wizardView);
   renderStep();
 }
@@ -168,7 +173,7 @@ function formDataObject() {
 }
 
 function saveDraft(manual = false) {
-  localStorage.setItem("patentIntakeDraft", JSON.stringify({
+  localStorage.setItem(DRAFT_KEY, JSON.stringify({
     serviceType,
     currentStep,
     data: formDataObject()
@@ -177,8 +182,34 @@ function saveDraft(manual = false) {
   if (manual) setTimeout(() => saveState.textContent = "임시저장됨", 1400);
 }
 
+function clearLegacyDrafts() {
+  // 예전 버전에서 남은 테스트값(예: 1, 11 등)을 V11 최초 실행 시 모두 제거합니다.
+  LEGACY_DRAFT_KEYS.forEach(key => localStorage.removeItem(key));
+}
+clearLegacyDrafts();
+
+window.addEventListener("pageshow", () => {
+  if (!localStorage.getItem(DRAFT_KEY)) {
+    const nameField = form?.querySelector('[name="name"]');
+    const companyField = form?.querySelector('[name="company"]');
+    const titleField = form?.querySelector('[name="inventionTitle"]');
+
+    if (nameField && nameField.value === "1") nameField.value = "";
+    if (companyField && companyField.value === "1") companyField.value = "";
+    if (titleField && /^1+$/.test(titleField.value || "")) titleField.value = "";
+
+    if (phoneFirst) phoneFirst.value = "010";
+    if (phoneMiddle && /^1+$/.test(phoneMiddle.value || "")) phoneMiddle.value = "";
+    if (phoneLast && /^1+$/.test(phoneLast.value || "")) phoneLast.value = "";
+    if (emailLocal && emailLocal.value === "1") emailLocal.value = "";
+
+    syncContactFields();
+  }
+});
+
+
 function loadDraft() {
-  const raw = localStorage.getItem("patentIntakeDraft");
+  const raw = localStorage.getItem(DRAFT_KEY);
   if (!raw) return;
   try {
     const draft = JSON.parse(raw);
@@ -358,7 +389,7 @@ form.addEventListener("submit", async (e) => {
       }
     }
 
-    localStorage.removeItem("patentIntakeDraft");
+    localStorage.removeItem(DRAFT_KEY);
     receiptNo.textContent = newReceiptNo;
 
     form.reset();

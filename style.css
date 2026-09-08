@@ -497,3 +497,120 @@ input:focus, textarea:focus { border-bottom-color: var(--gold); }
     display:none;
   }
 }
+
+
+/* V10 final contact layout fixes */
+.field-grid.two.contact-row{
+  grid-template-columns:minmax(0,.90fr) minmax(0,1.10fr);
+  column-gap:28px;
+}
+.phone-input-group .phone-first{
+  flex:0 0 72px !important;
+  background:#fffdf8;
+  font-weight:900;
+}
+.email-input-group{
+  display:grid !important;
+  grid-template-columns:minmax(110px,.88fr) 24px minmax(190px,1.35fr) !important;
+  gap:8px !important;
+  width:100%;
+}
+.email-input-group #emailLocal,
+.email-input-group #emailDomain,
+.email-input-group #emailDomainDirect{
+  width:100% !important;
+  min-width:0 !important;
+  height:42px;
+}
+.email-input-group #emailDomain{
+  font-size:13px;
+  padding-left:12px;
+  padding-right:30px;
+}
+.email-input-group .email-at{
+  display:grid;
+  place-items:center;
+  width:24px;
+}
+@media(max-width:760px){
+  .field-grid.two.contact-row{grid-template-columns:1fr;}
+}
+@media(max-width:640px){
+  .email-input-group{grid-template-columns:1fr !important;}
+  .email-input-group .email-at{display:none;}
+}
+
+
+/* ===== V11 CONTACT LAYOUT FINAL ===== */
+.field-grid.two.contact-row{
+  grid-template-columns:minmax(0,.88fr) minmax(0,1.12fr) !important;
+  column-gap:32px !important;
+}
+
+.phone-input-group,
+.phone-group{
+  display:grid !important;
+  grid-template-columns:72px 14px minmax(82px,1fr) 14px minmax(82px,1fr) !important;
+  gap:6px !important;
+  align-items:center;
+  width:100%;
+}
+
+.phone-input-group input,
+.phone-group input{
+  width:100% !important;
+  min-width:0 !important;
+  text-align:center;
+  height:42px;
+}
+
+#phoneFirst{
+  background:#fffaf0 !important;
+  color:#163b63 !important;
+  font-weight:900 !important;
+}
+
+.email-input-group{
+  display:grid !important;
+  grid-template-columns:minmax(120px,.82fr) 26px minmax(230px,1.55fr) !important;
+  gap:8px !important;
+  align-items:center !important;
+  width:100% !important;
+}
+
+.email-input-group #emailLocal,
+.email-input-group #emailDomain,
+.email-input-group #emailDomainDirect{
+  width:100% !important;
+  min-width:0 !important;
+  height:42px !important;
+}
+
+.email-input-group #emailDomain{
+  font-size:14px !important;
+  padding-left:14px !important;
+  padding-right:34px !important;
+}
+
+.email-input-group .email-at{
+  display:grid !important;
+  place-items:center !important;
+  width:26px !important;
+  font-size:18px !important;
+  font-weight:800;
+  color:#6e7882;
+}
+
+@media(max-width:760px){
+  .field-grid.two.contact-row{
+    grid-template-columns:1fr !important;
+  }
+}
+@media(max-width:640px){
+  .email-input-group{
+    grid-template-columns:1fr !important;
+  }
+  .email-input-group .email-at{
+    display:none !important;
+  }
+}

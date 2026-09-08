@@ -377,3 +377,24 @@ td:nth-child(7){
   color:#173e69;
   font-weight:900;
 }
+
+
+/* ===== V11 ADMIN CONTACT SEARCH FINAL ===== */
+.phone-search-group{
+  display:grid !important;
+  grid-template-columns:78px 14px minmax(86px,1fr) 14px minmax(86px,1fr) !important;
+  gap:6px !important;
+  align-items:center !important;
+}
+.phone-search-group input{
+  width:100% !important;
+  min-width:0 !important;
+  height:38px !important;
+  text-align:center !important;
+  font-variant-numeric:tabular-nums;
+}
+#phoneFirstFilter{
+  background:#f5f9ff !important;
+  color:#163f6d !important;
+  font-weight:900 !important;
+}

@@ -274,8 +274,13 @@ function buildFilterSummary() {
   if (managerFilter.value) parts.push(`담당자: ${managerFilter.value}`);
   if (nameFilter.value.trim()) parts.push(`신청자: ${nameFilter.value.trim()}`);
   if (companyFilter.value.trim()) parts.push(`회사: ${companyFilter.value.trim()}`);
-  const phoneParts = [phoneFirstFilter.value, phoneMiddleFilter.value, phoneLastFilter.value].map(v => v.trim()).filter(Boolean);
-  if (phoneParts.length) parts.push(`연락처: ${phoneParts.join("-")}`);
+  const phoneFirstText = phoneFirstFilter.value.trim();
+  const phoneMiddleText = phoneMiddleFilter.value.trim();
+  const phoneLastText = phoneLastFilter.value.trim();
+  if (!(phoneFirstText === "010" && !phoneMiddleText && !phoneLastText)) {
+    const phoneParts = [phoneFirstText, phoneMiddleText, phoneLastText].filter(Boolean);
+    if (phoneParts.length) parts.push(`연락처: ${phoneParts.join("-")}`);
+  }
   if (emailFilter.value.trim()) parts.push(`이메일: ${emailFilter.value.trim()}`);
   if (titleFilter.value.trim()) parts.push(`발명명칭: ${titleFilter.value.trim()}`);
   if (technicalFieldFilter.value.trim()) parts.push(`기술분야: ${technicalFieldFilter.value.trim()}`);
@@ -323,6 +328,7 @@ function resetSearch() {
     else el.value = "";
   });
 
+  if (phoneFirstFilter) phoneFirstFilter.value = "010";
   sortSelect.value = "newest";
   renderTable();
 }
