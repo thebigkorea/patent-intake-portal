@@ -107,6 +107,7 @@ function validateCurrentStep() {
 
 
 // V4 연락처/이메일 조합 입력
+const phoneFirst = document.getElementById("phoneFirst");
 const phoneMiddle = document.getElementById("phoneMiddle");
 const phoneLast = document.getElementById("phoneLast");
 const phoneValue = document.getElementById("phoneValue");
@@ -115,13 +116,19 @@ const emailDomain = document.getElementById("emailDomain");
 const emailDomainDirect = document.getElementById("emailDomainDirect");
 const emailValue = document.getElementById("emailValue");
 
-function digits4(el){
+function phoneDigits(el, max=4){
   if (!el) return;
-  el.value = el.value.replace(/\D/g, "").slice(0,4);
+  el.value = el.value.replace(/\D/g, "").slice(0,max);
 }
 function syncContactFields(){
-  digits4(phoneMiddle); digits4(phoneLast);
-  if (phoneValue) phoneValue.value = (phoneMiddle?.value.length===4 && phoneLast?.value.length===4) ? `010-${phoneMiddle.value}-${phoneLast.value}` : "";
+  phoneDigits(phoneFirst,4);
+  phoneDigits(phoneMiddle,4);
+  phoneDigits(phoneLast,4);
+  const first=(phoneFirst?.value||"").trim();
+  const middle=(phoneMiddle?.value||"").trim();
+  const last=(phoneLast?.value||"").trim();
+  const phoneValid = first.length >= 2 && middle.length >= 3 && last.length === 4;
+  if (phoneValue) phoneValue.value = phoneValid ? `${first}-${middle}-${last}` : "";
   const local=(emailLocal?.value||"").trim().replace(/\s/g,"");
   const domain=(emailDomain?.value==="direct" ? (emailDomainDirect?.value||"") : (emailDomain?.value||"")).trim().replace(/^@/,"").replace(/\s/g,"");
   if (emailValue) emailValue.value = local && domain ? `${local}@${domain}` : "";
@@ -132,7 +139,8 @@ function toggleEmailDomain(){
   if (emailDomainDirect) emailDomainDirect.required=direct;
   syncContactFields();
 }
-[phoneMiddle,phoneLast,emailLocal,emailDomainDirect].forEach(el=>el?.addEventListener("input",syncContactFields));
+[phoneFirst,phoneMiddle,phoneLast,emailLocal,emailDomainDirect].forEach(el=>el?.addEventListener("input",syncContactFields));
+phoneFirst?.addEventListener("input",()=>{ if(phoneFirst.value.length>=3) phoneMiddle?.focus(); });
 phoneMiddle?.addEventListener("input",()=>{ if(phoneMiddle.value.length===4) phoneLast?.focus(); });
 emailDomain?.addEventListener("change",toggleEmailDomain);
 toggleEmailDomain();
@@ -183,6 +191,32 @@ function loadDraft() {
         }
       });
     });
+
+    // 조합형 연락처/이메일 복원
+    const savedPhone = String(draft.data.phone || "").replace(/\s/g, "");
+    const phoneParts = savedPhone.split("-");
+    if (phoneParts.length === 3) {
+      if (phoneFirst) phoneFirst.value = phoneParts[0];
+      if (phoneMiddle) phoneMiddle.value = phoneParts[1];
+      if (phoneLast) phoneLast.value = phoneParts[2];
+    }
+
+    const savedEmail = String(draft.data.email || "").trim();
+    const at = savedEmail.lastIndexOf("@");
+    if (at > 0) {
+      const local = savedEmail.slice(0, at);
+      const domain = savedEmail.slice(at + 1);
+      if (emailLocal) emailLocal.value = local;
+      const known = [...emailDomain.options].some(o => o.value === domain);
+      if (known) {
+        emailDomain.value = domain;
+      } else {
+        emailDomain.value = "direct";
+        emailDomainDirect.value = domain;
+      }
+      toggleEmailDomain();
+    }
+    syncContactFields();
   } catch (e) {
     console.warn("Draft load failed", e);
   }

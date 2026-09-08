@@ -20,7 +20,9 @@ const statusFilter = document.getElementById("statusFilter");
 const managerFilter = document.getElementById("managerFilter");
 const nameFilter = document.getElementById("nameFilter");
 const companyFilter = document.getElementById("companyFilter");
-const phoneFilter = document.getElementById("phoneFilter");
+const phoneFirstFilter = document.getElementById("phoneFirstFilter");
+const phoneMiddleFilter = document.getElementById("phoneMiddleFilter");
+const phoneLastFilter = document.getElementById("phoneLastFilter");
 const emailFilter = document.getElementById("emailFilter");
 const titleFilter = document.getElementById("titleFilter");
 const technicalFieldFilter = document.getElementById("technicalFieldFilter");
@@ -169,7 +171,10 @@ function getFilteredApplications() {
     manager: managerFilter.value,
     name: normalize(nameFilter.value),
     company: normalize(companyFilter.value),
-    phone: normalizePhone(phoneFilter.value),
+    phone: [phoneFirstFilter.value, phoneMiddleFilter.value, phoneLastFilter.value]
+      .map(v => normalizePhone(v))
+      .filter(Boolean)
+      .join(""),
     email: normalize(emailFilter.value),
     title: normalize(titleFilter.value),
     technical: normalize(technicalFieldFilter.value),
@@ -241,7 +246,8 @@ function buildFilterSummary() {
   if (managerFilter.value) parts.push(`담당자: ${managerFilter.value}`);
   if (nameFilter.value.trim()) parts.push(`신청자: ${nameFilter.value.trim()}`);
   if (companyFilter.value.trim()) parts.push(`회사: ${companyFilter.value.trim()}`);
-  if (phoneFilter.value.trim()) parts.push(`연락처: ${phoneFilter.value.trim()}`);
+  const phoneParts = [phoneFirstFilter.value, phoneMiddleFilter.value, phoneLastFilter.value].map(v => v.trim()).filter(Boolean);
+  if (phoneParts.length) parts.push(`연락처: ${phoneParts.join("-")}`);
   if (emailFilter.value.trim()) parts.push(`이메일: ${emailFilter.value.trim()}`);
   if (titleFilter.value.trim()) parts.push(`발명명칭: ${titleFilter.value.trim()}`);
   if (technicalFieldFilter.value.trim()) parts.push(`기술분야: ${technicalFieldFilter.value.trim()}`);
@@ -282,7 +288,7 @@ function renderTable() {
 function resetSearch() {
   [
     dateFrom,dateTo,serviceFilter,statusFilter,managerFilter,nameFilter,companyFilter,
-    phoneFilter,emailFilter,titleFilter,technicalFieldFilter,disclosedFilter,keywordFilter
+    phoneFirstFilter,phoneMiddleFilter,phoneLastFilter,emailFilter,titleFilter,technicalFieldFilter,disclosedFilter,keywordFilter
   ].forEach(el => {
     if (el.tagName === "SELECT") el.selectedIndex = 0;
     else el.value = "";
@@ -452,6 +458,16 @@ function escapeHtml(value) {
     .replace(/"/g,"&quot;")
     .replace(/'/g,"&#039;");
 }
+
+function sanitizePhoneFilterInput(el){
+  if (!el) return;
+  el.value = el.value.replace(/\D/g, "").slice(0,4);
+}
+[phoneFirstFilter, phoneMiddleFilter, phoneLastFilter].forEach(el => {
+  el?.addEventListener("input", () => sanitizePhoneFilterInput(el));
+});
+phoneFirstFilter?.addEventListener("input", () => { if (phoneFirstFilter.value.length >= 3) phoneMiddleFilter?.focus(); });
+phoneMiddleFilter?.addEventListener("input", () => { if (phoneMiddleFilter.value.length === 4) phoneLastFilter?.focus(); });
 
 loginBtn.addEventListener("click",login);
 adminKeyInput.addEventListener("keydown",e => { if (e.key === "Enter") login(); });

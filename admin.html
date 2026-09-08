@@ -124,7 +124,13 @@
 
             <label class="field compact">
               <span>연락처</span>
-              <input id="phoneFilter" type="text" placeholder="010 또는 일부 번호" />
+              <div class="phone-search-group">
+                <input id="phoneFirstFilter" type="text" inputmode="numeric" maxlength="4" placeholder="010" aria-label="연락처 첫 번째 번호 검색" />
+                <span>-</span>
+                <input id="phoneMiddleFilter" type="text" inputmode="numeric" maxlength="4" placeholder="1234" aria-label="연락처 가운데 번호 검색" />
+                <span>-</span>
+                <input id="phoneLastFilter" type="text" inputmode="numeric" maxlength="4" placeholder="5678" aria-label="연락처 마지막 번호 검색" />
+              </div>
             </label>
           </div>
 
