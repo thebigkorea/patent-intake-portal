@@ -361,3 +361,19 @@ td:nth-child(7){
 .attachment-open-btn:hover{
   background:#dfeeff;
 }
+
+
+/* V10 administrator contact search */
+.phone-search-group{
+  grid-template-columns:minmax(68px,.80fr) 12px minmax(78px,1fr) 12px minmax(78px,1fr) !important;
+  gap:5px !important;
+}
+.phone-search-group input{
+  text-align:center;
+  font-variant-numeric:tabular-nums;
+}
+#phoneFirstFilter{
+  background:#f8fbff;
+  color:#173e69;
+  font-weight:900;
+}
